@@ -9,3 +9,13 @@
         (expiration-block (+ block-height 2102400))) ; 2 years
     (map-insert subscriptions subscriber (list content-id expiration-block payment-amount))
     (ok expiration-block)))
+
+;; Withdraw earnings
+(define-public (withdraw (content-id 'content-id))
+  (let ((principal tx-sender)
+        (earnings (default-to 0 (get (get principal (map-get? creator-earnings principal)) content-id))))
+    (if (> earnings 0)
+        (begin
+          (map-delete creator-earnings principal content-id)
+          (as-contract (stx-transfer? earnings principal)))
+        (err u0))))
